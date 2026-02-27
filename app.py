@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import (
@@ -23,10 +24,42 @@ if "mode" not in st.session_state:
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
 
+    # ===============================
+    # EXPLORATORY DATA ANALYSIS
+    # ===============================
+    st.markdown("## Exploratory Data Analysis")
+
     st.subheader("Dataset Preview")
     st.dataframe(df.head())
 
-    # Remove unnecessary columns
+    st.write("Dataset Shape:", df.shape)
+
+    st.subheader("Column Data Types")
+    st.dataframe(df.dtypes)
+
+    st.subheader("Missing Values")
+    missing = df.isnull().sum()
+    st.dataframe(missing[missing > 0])
+
+    st.subheader("Summary Statistics (Numeric Columns)")
+    st.dataframe(df.describe())
+
+    numeric_df = df.select_dtypes(include=["int64", "float64"])
+
+    if not numeric_df.empty:
+        st.subheader("Correlation Matrix")
+        st.dataframe(numeric_df.corr())
+
+        st.subheader("Numeric Feature Distributions")
+        for col in numeric_df.columns:
+            fig, ax = plt.subplots()
+            numeric_df[col].hist(ax=ax)
+            ax.set_title(f"Distribution of {col}")
+            st.pyplot(fig)
+
+    # ===============================
+    # CLEAN DATA (DROP UNNECESSARY)
+    # ===============================
     drop_keywords = ["id", "name", "date"]
     filtered_columns = [
         col for col in df.columns
@@ -34,7 +67,10 @@ if uploaded_file is not None:
     ]
     clean_df = df[filtered_columns]
 
-    st.markdown("### Select Model Type")
+    # ===============================
+    # MODEL SELECTION
+    # ===============================
+    st.markdown("## Model Selection")
 
     col1, col2 = st.columns(2)
 
@@ -44,11 +80,9 @@ if uploaded_file is not None:
     if col2.button("Regression"):
         st.session_state.mode = "regression"
 
-    # If mode selected, show selection options
     if st.session_state.mode is not None:
 
         mode = st.session_state.mode
-
         st.subheader(f"{mode.capitalize()} Mode Selected")
 
         # Filter targets
@@ -124,4 +158,4 @@ if uploaded_file is not None:
 
                         st.subheader("Results")
                         st.write("Mean Squared Error:", round(mean_squared_error(y_test, y_pred), 4))
-                        st.write("R² Score:", round(r2_score(y_test, y_pred), 4))
+                        st.write("R² Score:", round(r2_score(y_test, y_pred), 4))stre
