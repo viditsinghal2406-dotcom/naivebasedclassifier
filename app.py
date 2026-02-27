@@ -158,4 +158,5 @@ if uploaded_file is not None:
 
                         st.subheader("Results")
                         st.write("Mean Squared Error:", round(mean_squared_error(y_test, y_pred), 4))
-                        st.write("R² Score:", round(r2_score(y_test, y_pred), 4))stre
+                        st.write("R² Score:", round(r2_score(y_test, y_pred), 4))
+
